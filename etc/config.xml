@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <novaposhta>
+                <active>1</active>
+                <sallowspecific>0</sallowspecific>
+                <model>\Zamoroka\NovaPoshta\Model\Carrier\NovaPoshta</model>
+                <name>Новая Почта</name>
+                <title>доставка в отделение</title>
+                <price>0.00</price>
+                <type>I</type>
+            </novaposhta>
+        </carriers>
+    </default>
+</config>
