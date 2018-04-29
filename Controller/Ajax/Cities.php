@@ -3,13 +3,9 @@
 namespace Zamoroka\NovaPoshta\Controller\Ajax;
 
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Api\FilterBuilder;
-use Magento\Framework\Serialize\Serializer\Json;
 use Zamoroka\NovaPoshta\Model\WebApi\NovaPoshtaFactory;
 
 /**
@@ -21,15 +17,7 @@ class Cities extends \Magento\Framework\App\Action\Action
 {
     private $resultJsonFactory;
 
-    private $resolver;
-
-    private $jsonSerializer;
-
     private $filterBuilder;
-
-    private $scopeConfig;
-
-    private $httpRequest;
 
     private $formKeyValidator;
 
@@ -40,32 +28,20 @@ class Cities extends \Magento\Framework\App\Action\Action
      *
      * @param Context                                             $context
      * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
-     * @param Resolver                                            $resolver
-     * @param \Magento\Framework\Serialize\Serializer\Json        $jsonSerializer
      * @param FilterBuilder                                       $filterBuilder
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface  $scopeConfig
-     * @param \Magento\Framework\App\Request\Http                 $httpRequest
      * @param \Magento\Framework\Data\Form\FormKey\Validator      $formKeyValidator
      * @param \Zamoroka\NovaPoshta\Model\WebApi\NovaPoshtaFactory $novaPoshtaServiceFactory
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        Resolver $resolver,
-        Json $jsonSerializer,
         FilterBuilder $filterBuilder,
-        ScopeConfigInterface $scopeConfig,
-        Http $httpRequest,
         Validator $formKeyValidator,
         NovaPoshtaFactory $novaPoshtaServiceFactory
     ) {
         parent::__construct($context);
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->resolver = $resolver;
         $this->filterBuilder = $filterBuilder;
-        $this->scopeConfig = $scopeConfig;
-        $this->jsonSerializer = $jsonSerializer;
-        $this->httpRequest = $httpRequest;
         $this->formKeyValidator = $formKeyValidator;
         $this->novaPoshtaServiceFactory = $novaPoshtaServiceFactory;
     }
@@ -73,20 +49,20 @@ class Cities extends \Magento\Framework\App\Action\Action
     /**
      * Index action
      *
-     * @throws \Zend_Http_Client_Exception
+     * @return \Magento\Framework\Controller\Result\Json|string
      */
     public function execute()
     {
-        $term = $this->getRequest()->getPost('term');
-
         if (!$this->formKeyValidator->validate($this->getRequest())
             || !$this->getRequest()->isAjax()) {
             return '';
         }
 
-        $to_json2 = $this->_getSuggestionCitiesArray($term);
+        $term = (string)$this->getRequest()->getPost('term');
 
-        return $this->resultJsonFactory->create()->setData(json_encode($to_json2));
+        return $this->resultJsonFactory->create()->setData(
+            json_encode($this->_getSuggestionCitiesArray($term))
+        );
     }
 
     /**
@@ -112,8 +88,7 @@ class Cities extends \Magento\Framework\App\Action\Action
             ]
         );
 
-        $responseJson = $novaPoshtaService->getResponse();
-        $response = $this->jsonSerializer->unserialize($responseJson);
+        $response = $novaPoshtaService->getResponse();
 
         if ($response['success'] === true) {
             $data = $response['data'][0]['Addresses'];
@@ -123,9 +98,8 @@ class Cities extends \Magento\Framework\App\Action\Action
     }
 
     /**
-     * @param $term
+     * @param string $term
      * @return array
-     * @throws \Zend_Http_Client_Exception
      */
     private function _getSuggestionCitiesArray($term = '')
     {

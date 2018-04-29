@@ -5,6 +5,7 @@ namespace Zamoroka\NovaPoshta\Model\WebApi;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\HTTP\ZendClientFactory;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Class NovaPoshta
@@ -40,29 +41,43 @@ class NovaPoshta
     /** @var array $requestBody */
     private $requestBody;
 
+    private $jsonSerializer;
+
     /**
      * NovaPoshta constructor.
      *
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Framework\HTTP\ZendClientFactory          $httpClientFactory
+     * @param \Magento\Framework\Serialize\Serializer\Json       $jsonSerializer
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        ZendClientFactory $httpClientFactory
+        ZendClientFactory $httpClientFactory,
+        Json $jsonSerializer
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->httpClientFactory = $httpClientFactory;
+        $this->jsonSerializer = $jsonSerializer;
     }
 
     /**
      * @return string
      * @throws \Zend_Http_Client_Exception
      */
-    public function getResponse()
+    public function getResponseJson()
     {
         $this->getClient()->setRawData(utf8_encode(json_encode($this->getRequestBody())));
 
         return $this->getClient()->request(\Zend_Http_Client::POST)->getBody();
+    }
+
+    /**
+     * @return mixed
+     * @throws \Zend_Http_Client_Exception
+     */
+    public function getResponse()
+    {
+        return $this->jsonSerializer->unserialize($this->getResponseJson());
     }
 
     /**
