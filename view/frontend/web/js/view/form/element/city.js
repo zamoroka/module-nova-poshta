@@ -20,7 +20,12 @@ define([
             $(element).autocomplete({
                 source: values.options,
                 select: function (event, ui) {
-                    var selected = true;
+
+                    $(event.target).data('valid', true);
+
+                    var selecteItem = ui.item;
+                    var selectedRef = selecteItem.ref;
+
                     // update street address
                     debugger;
                 }
@@ -32,12 +37,30 @@ define([
         selectedCity: ko.observable(""),
         postCode: ko.observable(""),
         getCities: function (request, response) {
-            // empty street address
-            var value = $('[name="city"]').val();
-            var items = JSON.parse('[{"label": "Ужгород", "value": "Ужгород"},{"label": "Ужгород1", "value": "Ужгород1"},{"label": "Ужгород2", "value": "Ужгород2"}]');
-            debugger;
-
-            response(items);
+            var term = request.term;
+            var items = [];
+            $(this.element).data("valid", false);
+            if (term.length > 1 && term.length < 30) {
+                $.ajax({
+                    url: url.build('novaposhta/ajax/cities'),
+                    type: "POST",
+                    data: {
+                        "form_key": $.mage.cookies.get('form_key'),
+                        "ajax": 1,
+                        "term": term
+                    },
+                    dataType: 'json',
+                    async: false,
+                    error: function () {
+                        console.log("An error have occurred.");
+                        response(items);
+                    },
+                    success: function (data) {
+                        items = JSON.parse(data);
+                        response(items);
+                    }
+                });
+            }
         }
 
     });

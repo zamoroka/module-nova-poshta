@@ -8,7 +8,7 @@ use Magento\Shipping\Model\Rate\Result;
 /**
  * Class NovaPoshta
  *
- * @package Magegain\Novaposhta\Model\Carrier
+ * @package Zamoroka\NovaPoshta\Model\Carrier
  */
 class NovaPoshta extends \Magento\Shipping\Model\Carrier\AbstractCarrier implements
     \Magento\Shipping\Model\Carrier\CarrierInterface
