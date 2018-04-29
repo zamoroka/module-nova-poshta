@@ -7,11 +7,10 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Magento\Framework\HTTP\ZendClientFactory;
 use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Store\Model\ScopeInterface;
+use Zamoroka\NovaPoshta\Model\WebApi\NovaPoshtaFactory;
 
 /**
  * Class Cities
@@ -24,8 +23,6 @@ class Cities extends \Magento\Framework\App\Action\Action
 
     private $resolver;
 
-    private $httpClientFactory;
-
     private $jsonSerializer;
 
     private $filterBuilder;
@@ -36,32 +33,33 @@ class Cities extends \Magento\Framework\App\Action\Action
 
     private $formKeyValidator;
 
+    private $novaPoshtaServiceFactory;
+
     /**
      * Cities constructor.
      *
-     * @param Context                                            $context
-     * @param \Magento\Framework\Controller\Result\JsonFactory   $resultJsonFactory
-     * @param \Magento\Framework\HTTP\ZendClientFactory          $httpClientFactory
-     * @param Resolver                                           $resolver
-     * @param \Magento\Framework\Serialize\Serializer\Json       $jsonSerializer
-     * @param FilterBuilder                                      $filterBuilder
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\App\Request\Http                $httpRequest
-     * @param \Magento\Framework\Data\Form\FormKey\Validator     $formKeyValidator
+     * @param Context                                             $context
+     * @param \Magento\Framework\Controller\Result\JsonFactory    $resultJsonFactory
+     * @param Resolver                                            $resolver
+     * @param \Magento\Framework\Serialize\Serializer\Json        $jsonSerializer
+     * @param FilterBuilder                                       $filterBuilder
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface  $scopeConfig
+     * @param \Magento\Framework\App\Request\Http                 $httpRequest
+     * @param \Magento\Framework\Data\Form\FormKey\Validator      $formKeyValidator
+     * @param \Zamoroka\NovaPoshta\Model\WebApi\NovaPoshtaFactory $novaPoshtaServiceFactory
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        ZendClientFactory $httpClientFactory,
         Resolver $resolver,
         Json $jsonSerializer,
         FilterBuilder $filterBuilder,
         ScopeConfigInterface $scopeConfig,
         Http $httpRequest,
-        Validator $formKeyValidator
+        Validator $formKeyValidator,
+        NovaPoshtaFactory $novaPoshtaServiceFactory
     ) {
         parent::__construct($context);
-        $this->httpClientFactory = $httpClientFactory;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->resolver = $resolver;
         $this->filterBuilder = $filterBuilder;
@@ -69,6 +67,7 @@ class Cities extends \Magento\Framework\App\Action\Action
         $this->jsonSerializer = $jsonSerializer;
         $this->httpRequest = $httpRequest;
         $this->formKeyValidator = $formKeyValidator;
+        $this->novaPoshtaServiceFactory = $novaPoshtaServiceFactory;
     }
 
     /**
@@ -101,26 +100,19 @@ class Cities extends \Magento\Framework\App\Action\Action
     {
         $data = [];
 
-        $apiKey = $this->scopeConfig->getValue('carriers/novaposhta/apikey', ScopeInterface::SCOPE_STORE);
+        /** @var \Zamoroka\NovaPoshta\Model\WebApi\NovaPoshta $novaPoshtaService */
+        $novaPoshtaService = $this->novaPoshtaServiceFactory->create();
 
-        $client = $this->httpClientFactory->create();
-
-        $client->setUri('https://api.novaposhta.ua/v2.0/json/');
-        $client->setConfig(['maxredirects' => 0, 'timeout' => 30]);
-
-        $request = [
-            'apiKey'           => $apiKey,
-            'modelName'        => 'Address',
-            'calledMethod'     => 'searchSettlements',
-            'methodProperties' => [
+        $novaPoshtaService->setModelName('Address');
+        $novaPoshtaService->setCalledMethod('searchSettlements');
+        $novaPoshtaService->setMethodProperties(
+            [
                 'CityName' => $term,
                 'Limit'    => 100
-            ],
-        ];
+            ]
+        );
 
-        $client->setRawData(utf8_encode(json_encode($request)));
-
-        $responseJson = $client->request(\Zend_Http_Client::POST)->getBody();
+        $responseJson = $novaPoshtaService->getResponse();
         $response = $this->jsonSerializer->unserialize($responseJson);
 
         if ($response['success'] === true) {
