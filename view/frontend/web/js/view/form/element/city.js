@@ -17,7 +17,11 @@ define([
             var term = request.term;
             var items = [];
 
+            var select = $('[name="shippingAddress.street.shippingAddress.street.0"] select');
+            $(select).html("");
+
             $(this.element).data("valid", false);
+
             if (term.length > 1 && term.length < 30) {
                 $.ajax({
                     url: url.build("novaposhta/ajax/cities"),
@@ -66,10 +70,6 @@ define([
                     $(items).each(function (key, item) {
                         $(select).append(new Option(item.value, item.label));
                     });
-
-
-                    debugger;
-
                 }
             });
         }
@@ -84,10 +84,7 @@ define([
                     $(event.target).data("valid", true);
 
                     var selecteItem = ui.item;
-                    var warehouses = City.getWarehouses(selecteItem.ref);
-
-                    debugger;
-                    // update street address
+                    City.getWarehouses(selecteItem.ref);
                 }
             });
         }
