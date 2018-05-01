@@ -19,6 +19,7 @@ define([
 
             var select = $('[name="shippingAddress.street.shippingAddress.street.0"] select');
             $(select).html("");
+            $(select).append(new Option("", ""));
 
             $(this.element).data("valid", false);
 
