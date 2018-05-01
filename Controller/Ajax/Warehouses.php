@@ -9,11 +9,11 @@ use Magento\Framework\Api\FilterBuilder;
 use Zamoroka\NovaPoshta\Model\WebApi\NovaPoshtaFactory;
 
 /**
- * Class Cities
+ * Class Departments
  *
  * @package Zamoroka\NovaPoshta\Controller\Ajax
  */
-class Cities extends \Magento\Framework\App\Action\Action
+class Warehouses extends \Magento\Framework\App\Action\Action
 {
     private $resultJsonFactory;
 
@@ -50,6 +50,7 @@ class Cities extends \Magento\Framework\App\Action\Action
      * Index action
      *
      * @return \Magento\Framework\Controller\Result\Json|string
+     * @throws \Zend_Http_Client_Exception
      */
     public function execute()
     {
@@ -58,67 +59,59 @@ class Cities extends \Magento\Framework\App\Action\Action
             return '';
         }
 
-        $term = (string)$this->getRequest()->getPost('term');
+        $cityRef = (string)$this->getRequest()->getPost('cityRef');
+        $warehouses = $this->_getWarehousesOptionArray($cityRef);
 
-        return $this->resultJsonFactory->create()->setData(
-            json_encode($this->_getSuggestionCitiesArray($term))
-        );
+        return $this->resultJsonFactory->create()->setData(json_encode($warehouses));
     }
 
     /**
      * Get cities from api
      *
-     * @param string $term
-     * @return json
+     * @param string $cityRef
+     * @return array
      * @throws \Zend_Http_Client_Exception
      */
-    private function _getCitiesFromServer($term = '')
+    private function _getWarehousesFromServer($cityRef = '')
     {
         $data = [];
 
         /** @var \Zamoroka\NovaPoshta\Model\WebApi\NovaPoshta $novaPoshtaService */
         $novaPoshtaService = $this->novaPoshtaServiceFactory->create();
 
-        $novaPoshtaService->setModelName('Address');
-        $novaPoshtaService->setCalledMethod('searchSettlements');
-        $novaPoshtaService->setMethodProperties(
-            [
-                'CityName' => $term,
-                'Limit'    => 100
-            ]
-        );
+        $novaPoshtaService->setModelName('AddressGeneral');
+        $novaPoshtaService->setCalledMethod('getWarehouses');
+        $novaPoshtaService->setMethodProperties(['CityRef' => $cityRef]);
 
         $response = $novaPoshtaService->getResponse();
 
         if ($response['success'] === true) {
-            $data = $response['data'][0]['Addresses'];
+            $data = $response['data'];
         }
 
         return $data;
     }
 
     /**
-     * @param string $term
+     * @param string $cityRef
      * @return array
+     * @throws \Zend_Http_Client_Exception
      */
-    private function _getSuggestionCitiesArray($term = '')
+    private function _getWarehousesOptionArray($cityRef = '')
     {
-        $data = [];
+        $data = [
+            [
+                'label' => '---',
+                'value' => ''
+            ]
+        ];
 
-        foreach ($this->_getCitiesFromServer($term) as $city) {
+        foreach ($this->_getWarehousesFromServer($cityRef) as $city) {
             $data[] = [
-                'label' => $city['Present'],
-                'value' => $city['Present'],
-                'ref'   => $city['DeliveryCity']
+                'label' => $city['Description'],
+                'value' => $city['Description']
             ];
-        }
-
-        if (count($data) === 0) {
-            $data[] = [
-                'label' => 'No matches found',
-                'value' => 'No matches found'
-            ];
-        }
+        };
 
         return $data;
     }
