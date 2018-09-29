@@ -61,10 +61,6 @@ class LayoutProcessorPlugin
         ['shippingAddress']['children']['shipping-address-fieldset']['children']['telephone']['config']['additionalClasses']
             = 'street col-mp mp-12 mp-clear';
 
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['region_id']
-            = '';
-
         return $jsLayout;
     }
 }
