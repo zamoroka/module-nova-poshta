@@ -78,7 +78,6 @@ define([
     ko.bindingHandlers.shippingAutoComplete = {
         init: function (element, valueAccessor) {
             var values = valueAccessor();
-
             $(element).autocomplete({
                 source: values.options,
                 select: function (event, ui) {
@@ -88,6 +87,7 @@ define([
                     City.getWarehouses(selecteItem.ref);
                 }
             });
+            $(element).attr("autocomplete", "disabledautocomplete");
         }
     };
 
