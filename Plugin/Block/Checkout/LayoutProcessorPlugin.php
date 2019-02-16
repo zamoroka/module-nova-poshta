@@ -14,12 +14,14 @@ class LayoutProcessorPlugin
     /**
      * @param \Mageplaza\Osc\Block\Checkout\LayoutProcessor $subject
      * @param array                                         $jsLayout
+     *
      * @return array
      */
     public function afterProcess(
         \Mageplaza\Osc\Block\Checkout\LayoutProcessor $subject,
         array $jsLayout
     ) {
+        /** wareehouse */
         $wareehouseSelect = [
             'component'  => 'Magento_Ui/js/form/element/select',
             'config'     => [
@@ -41,25 +43,14 @@ class LayoutProcessorPlugin
             ]
         ];
 
+        $streetChilds = [$wareehouseSelect];
+
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
         ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['label']
             = __('Warehouse');
 
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['sortOrder']
-            = 60;
-
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][0]
-            = $wareehouseSelect;
-
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['telephone']['sortOrder']
-            = 70;
-
-        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['telephone']['config']['additionalClasses']
-            = 'street col-mp mp-12 mp-clear';
+        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'] = $streetChilds;
 
         return $jsLayout;
     }
