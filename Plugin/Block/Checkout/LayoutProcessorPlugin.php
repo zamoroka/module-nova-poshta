@@ -21,26 +21,28 @@ class LayoutProcessorPlugin
         \Mageplaza\Osc\Block\Checkout\LayoutProcessor $subject,
         array $jsLayout
     ) {
-        /** wareehouse */
-        $wareehouseSelect = [
+        /** warehouse */
+        $warehouse = [
             'component'  => 'Magento_Ui/js/form/element/select',
             'config'     => [
                 'customScope' => 'shippingAddress',
                 'template'    => 'ui/form/field',
                 'elementTmpl' => 'ui/form/element/select',
             ],
-            'dataScope'  => 'shippingAddress.street.0',
+            'dataScope'  => 0,
             'provider'   => 'checkoutProvider',
-            'visible'    => true,
             'validation' => [
-                'required-entry' => true,
+                'required-entry'  => true,
+                'min_text_length' => 1,
+                'max_text_length' => 255
             ],
             'options'    => [
                 [
                     'value' => '',
                     'label' => ' --- ',
                 ]
-            ]
+            ],
+            'visible'    => true
         ];
 
         $cityField = [
@@ -67,24 +69,12 @@ class LayoutProcessorPlugin
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
         ['shippingAddress']['children']['shipping-address-fieldset']['children']['city'] = $cityField;
 
-        $streetChilds = [$wareehouseSelect];
-
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
         ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['label']
             = __('Warehouse');
 
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][0] =
-            $wareehouseSelect;
-
-        unset(
-            $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-            ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][1]
-        );
-        unset(
-            $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-            ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][2]
-        );
+        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'] = [$warehouse];
 
         return $jsLayout;
     }

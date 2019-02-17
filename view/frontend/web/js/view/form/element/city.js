@@ -50,7 +50,7 @@ define([
                         success: function (data) {
                             items = JSON.parse(data);
 
-                            var select = $('[name="shippingAddress.street.shippingAddress.street.0"] select');
+                            var select = $('[name="shippingAddress.street.0"] select');
                             $(event.target).data("aria-invalid", false);
 
                             $(select).html("");
