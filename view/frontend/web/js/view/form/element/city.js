@@ -6,13 +6,70 @@
 /*global define*/
 define([
     "Magento_Ui/js/form/element/abstract",
+    "Magento_Checkout/js/model/quote",
     "mage/url",
     "ko",
     "jquery"
-], function (Abstract, url, ko, $) {
+], function (Abstract, quote, url, ko, $) {
     "use strict";
 
-    var City = {
+    ko.bindingHandlers.shippingAutoComplete = {
+        init: function (element, valueAccessor) {
+            var values = valueAccessor();
+            var selectedOption = values.selected;
+
+            $(element).autocomplete({
+                source: values.options,
+                select: function (event, ui) {
+                    var selectedItem = ui.item;
+                    event.preventDefault();
+                    $(element).val(ui.item.label);
+                    $(event.target).data("aria-invalid", false);
+
+                    if (typeof ui.item !== "undefined") {
+                        selectedOption(ui.item);
+                    }
+
+                    quote.shippingAddress().city = $(element).val();
+
+                    var items = [];
+
+                    $.ajax({
+                        url: url.build("novaposhta/ajax/warehouses"),
+                        type: "POST",
+                        data: {
+                            "form_key": $.mage.cookies.get("form_key"),
+                            "ajax": 1,
+                            "cityRef": selectedItem.ref
+                        },
+                        dataType: "json",
+                        async: false,
+                        error: function () {
+                            console.log("An error have occurred.");
+                        },
+                        success: function (data) {
+                            items = JSON.parse(data);
+
+                            var select = $('[name="shippingAddress.street.shippingAddress.street.0"] select');
+                            $(event.target).data("aria-invalid", false);
+
+                            $(select).html("");
+
+                            $(items).each(function (key, item) {
+                                $(select).append(new Option(item.label, item.value));
+                            });
+                        }
+                    });
+
+                }
+            });
+            $(element).attr("autocomplete", "disabledautocomplete");
+        }
+    };
+
+    return Abstract.extend({
+        selectedCity: ko.observable(""),
+        postCode: ko.observable(""),
         getCities: function (request, response) {
             var term = request.term;
             var items = [];
@@ -44,58 +101,7 @@ define([
                     }
                 });
             }
-        },
-
-        getWarehouses: function (cityRef) {
-            var items = [];
-
-            $.ajax({
-                url: url.build("novaposhta/ajax/warehouses"),
-                type: "POST",
-                data: {
-                    "form_key": $.mage.cookies.get("form_key"),
-                    "ajax": 1,
-                    "cityRef": cityRef
-                },
-                dataType: "json",
-                async: false,
-                error: function () {
-                    console.log("An error have occurred.");
-                },
-                success: function (data) {
-                    items = JSON.parse(data);
-
-                    var select = $('[name="shippingAddress.street.shippingAddress.street.0"] select');
-                    $(select).html("");
-
-                    $(items).each(function (key, item) {
-                        $(select).append(new Option(item.value, item.label));
-                    });
-                }
-            });
-        }
-    };
-    ko.bindingHandlers.shippingAutoComplete = {
-        init: function (element, valueAccessor) {
-            var values = valueAccessor();
-            $(element).autocomplete({
-                source: values.options,
-                select: function (event, ui) {
-                    $(event.target).data("valid", true);
-
-                    var selecteItem = ui.item;
-                    City.getWarehouses(selecteItem.ref);
-                }
-            });
-            $(element).attr("autocomplete", "disabledautocomplete");
-        }
-    };
-
-    return Abstract.extend({
-        selectedCity: ko.observable(""),
-        postCode: ko.observable(""),
-        getCities: function (request, response) {
-            City.getCities(request, response);
+            ;
         }
     });
 });

@@ -116,7 +116,7 @@ class Cities extends \Magento\Framework\App\Action\Action
         if (count($data) === 0) {
             $data[] = [
                 'label' => 'No matches found',
-                'value' => 'No matches found'
+                'value' => ''
             ];
         }
 

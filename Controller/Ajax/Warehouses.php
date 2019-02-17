@@ -101,7 +101,7 @@ class Warehouses extends \Magento\Framework\App\Action\Action
     {
         $data = [
             [
-                'label' => '---',
+                'label' => ' --- ',
                 'value' => ''
             ]
         ];

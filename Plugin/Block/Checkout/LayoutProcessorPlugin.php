@@ -38,10 +38,34 @@ class LayoutProcessorPlugin
             'options'    => [
                 [
                     'value' => '',
-                    'label' => '',
+                    'label' => ' --- ',
                 ]
             ]
         ];
+
+        $cityField = [
+            'component'  => 'Zamoroka_NovaPoshta/js/view/form/element/city',
+            'config'     => [
+                'customScope'       => 'shippingAddress',
+                'template'          => 'ui/form/field',
+                'elementTmpl'       => 'Zamoroka_NovaPoshta/form/element/city',
+                'additionalClasses' => 'col-mp mp-6'
+            ],
+            'dataScope'  => 'shippingAddress.city',
+            'label'      => new Phrase('City'),
+            'provider'   => 'checkoutProvider',
+            'sortOrder'  => 4,
+            'validation' => [
+                'required-entry'  => true,
+                'min_text_length' => 1,
+                'max_text_length' => 255
+            ],
+            'options'    => [],
+            'visible'    => true,
+        ];
+
+        $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+        ['shippingAddress']['children']['shipping-address-fieldset']['children']['city'] = $cityField;
 
         $streetChilds = [$wareehouseSelect];
 
@@ -50,7 +74,17 @@ class LayoutProcessorPlugin
             = __('Warehouse');
 
         $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
-        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'] = $streetChilds;
+        ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][0] =
+            $wareehouseSelect;
+
+        unset(
+            $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+            ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][1]
+        );
+        unset(
+            $jsLayout['components']['checkout']['children']['steps']['children']['shipping-step']['children']
+            ['shippingAddress']['children']['shipping-address-fieldset']['children']['street']['children'][2]
+        );
 
         return $jsLayout;
     }

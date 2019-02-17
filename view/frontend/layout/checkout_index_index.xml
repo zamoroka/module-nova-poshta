@@ -29,13 +29,6 @@
                                                     <item name="children" xsi:type="array">
                                                         <item name="shipping-address-fieldset" xsi:type="array">
                                                             <item name="children" xsi:type="array">
-                                                                <item name="city" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">Zamoroka_NovaPoshta/js/view/form/element/city</item>
-                                                                    <item name="config" xsi:type="array">
-                                                                        <item name="elementTmpl" xsi:type="string">Zamoroka_NovaPoshta/form/element/city</item>
-                                                                        <item name="provider" xsi:type="string">city.city_listing_data_source</item>
-                                                                    </item>
-                                                                </item>
                                                                 <item name="street" xsi:type="array">
                                                                     <item name="config" xsi:type="array">
                                                                         <item name="sortOrder" xsi:type="number">60</item>
