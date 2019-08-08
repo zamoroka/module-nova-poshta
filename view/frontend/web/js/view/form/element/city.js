@@ -24,6 +24,7 @@ define([
                     var selectedItem = ui.item;
                     event.preventDefault();
                     $(element).val(ui.item.label);
+                    $(element).trigger("valueUpdate");
                     $(event.target).data("aria-invalid", false);
 
                     if (typeof ui.item !== "undefined") {
