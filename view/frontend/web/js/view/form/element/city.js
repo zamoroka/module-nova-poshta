@@ -94,7 +94,7 @@ define([
                     dataType: "json",
                     async: false,
                     beforeSend: function () {
-                        fullScreenLoader.startLoader();
+
                     },
                     error: function () {
                         console.log("An error have occurred.");
@@ -105,7 +105,7 @@ define([
                         response(items);
                     },
                     complete: function (data) {
-                        fullScreenLoader.stopLoader();
+
                     }
                 });
             }
