@@ -9,8 +9,9 @@ define([
     "Magento_Checkout/js/model/quote",
     "mage/url",
     "ko",
-    "jquery"
-], function (Abstract, quote, url, ko, $) {
+    "jquery",
+    'Magento_Checkout/js/model/full-screen-loader'
+], function (Abstract, quote, url, ko, $, fullScreenLoader) {
     "use strict";
 
     ko.bindingHandlers.shippingAutoComplete = {
@@ -92,6 +93,9 @@ define([
                     },
                     dataType: "json",
                     async: false,
+                    beforeSend: function () {
+                        fullScreenLoader.startLoader();
+                    },
                     error: function () {
                         console.log("An error have occurred.");
                         response(items);
@@ -99,10 +103,12 @@ define([
                     success: function (data) {
                         items = JSON.parse(data);
                         response(items);
+                    },
+                    complete: function (data) {
+                        fullScreenLoader.stopLoader();
                     }
                 });
             }
-            ;
         }
     });
 });
