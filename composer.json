@@ -7,12 +7,18 @@
     },
     "type": "magento2-module",
     "version": "0.1.0",
+    "authors": [
+        {
+            "name": "Pavlo Zamoroka",
+            "email": "zapashok0@gmail.com"
+        }
+    ],
     "autoload": {
         "files": [
-            "registration.php"
+            "src/registration.php"
         ],
         "psr-4": {
-            "Zamoroka\\NovaPoshta\\": ""
+            "Zamoroka\\NovaPoshta\\": "src"
         }
     }
 }
